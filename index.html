@@ -196,6 +196,25 @@
     border-radius:8px;
   }
   .overlay.open{ display:flex; align-items:flex-start; justify-content:center; }
+
+  /* Day popover: anchored next to the clicked date instead of centered */
+  #dayOverlay{
+    position:fixed;
+    inset:0;
+    background:transparent;
+    padding:0;
+    display:none;
+    z-index:50;
+  }
+  #dayOverlay.open{ display:block; }
+  #dayOverlay .modal{
+    position:absolute;
+    max-width:300px;
+    min-width:240px;
+    box-shadow:0 10px 32px rgba(74,68,88,0.22), 0 2px 8px rgba(74,68,88,0.12);
+    border:1px solid var(--line);
+  }
+
   .modal{
     background:var(--card);
     border-radius:16px;
@@ -451,6 +470,7 @@ let posts = [];
 let editingId = null;
 let activeFilter = 'all';
 let activeDayDate = null; // the day currently shown in the day modal
+let lastAnchorEl = null; // the calendar cell the day popover is anchored to
 
 function pad(n){ return n<10 ? '0'+n : ''+n; }
 function isoDate(y,m,d){ return y+'-'+pad(m+1)+'-'+pad(d); }
@@ -556,7 +576,7 @@ function render(){
       <div class="cal-date">${d}</div>
       <div class="cal-posts">${pillsHtml}${moreHtml}</div>
     `;
-    cell.addEventListener('click', () => openDayModal(dateStr));
+    cell.addEventListener('click', (e) => openDayModal(dateStr, cell));
     grid.appendChild(cell);
   }
 
@@ -567,8 +587,9 @@ function render(){
   document.getElementById('f-date').min = m.key + '-01';
 }
 
-function openDayModal(dateStr){
+function openDayModal(dateStr, anchorEl){
   activeDayDate = dateStr;
+  lastAnchorEl = anchorEl || lastAnchorEl;
   document.getElementById('dayModalTitle').textContent = fmtLong(dateStr);
   const dayPosts = postsForDay(dateStr);
   document.getElementById('dayModalSub').textContent = dayPosts.length
@@ -593,6 +614,33 @@ function openDayModal(dateStr){
   });
 
   document.getElementById('dayOverlay').classList.add('open');
+  positionDayPopover();
+}
+
+function positionDayPopover(){
+  const modal = document.querySelector('#dayOverlay .modal');
+  if(!lastAnchorEl || !modal) return;
+  const rect = lastAnchorEl.getBoundingClientRect();
+  const modalW = 300, modalH = modal.offsetHeight || 220;
+  const margin = 8;
+
+  // Prefer to the right of the cell; flip left if it would overflow
+  let left = rect.right + margin;
+  if(left + modalW > window.innerWidth - margin){
+    left = rect.left - modalW - margin;
+  }
+  if(left < margin) left = Math.min(rect.left, window.innerWidth - modalW - margin);
+  left = Math.max(margin, left);
+
+  // Align vertically with the cell; keep on-screen
+  let top = rect.top;
+  if(top + modalH > window.innerHeight - margin){
+    top = window.innerHeight - modalH - margin;
+  }
+  top = Math.max(margin, top);
+
+  modal.style.left = left + 'px';
+  modal.style.top = (top + window.scrollY) + 'px';
 }
 function closeDayModal(){
   document.getElementById('dayOverlay').classList.remove('open');
@@ -699,6 +747,7 @@ document.getElementById('dayAddBtn').addEventListener('click', () => {
 });
 document.getElementById('dayCloseBtn').addEventListener('click', () => { closeDayModal(); activeDayDate = null; });
 document.getElementById('dayOverlay').addEventListener('click', (e) => { if(e.target.id === 'dayOverlay'){ closeDayModal(); activeDayDate = null; } });
+window.addEventListener('resize', () => { if(activeDayDate) positionDayPopover(); });
 
 document.querySelectorAll('.filter-chip').forEach(chip => {
   chip.addEventListener('click', () => {
