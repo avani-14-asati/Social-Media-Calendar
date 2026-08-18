@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BITS Hyderabad — Content Calendar</title>
+<link rel="stylesheet" href="style.css">
+<script type="module" src="firebase-config.js"></script>
+</head>
+<body>
+
+<div class="masthead">
+  <div>
+    <div class="masthead-title">BITS Hyderabad — content calendar</div>
+    <div class="masthead-sub">Instagram &amp; LinkedIn, August – December</div>
+  </div>
+  <div class="month-tabs" id="monthTabs"></div>
+</div>
+
+<div class="toolbar">
+  <button class="add" id="addPostBtn">+ New post</button>
+  <div class="filter-chip active" data-filter="all">All</div>
+  <div class="filter-chip" data-filter="instagram">Instagram</div>
+  <div class="filter-chip" data-filter="linkedin">LinkedIn</div>
+  <div class="stats">
+    <div><b id="statTotal">0</b> this month</div>
+    <div><b id="statPosted">0</b> posted</div>
+    <div><b id="statPending">0</b> pending</div>
+  </div>
+</div>
+
+<div id="loadingNote" class="loading-note">Loading calendar…</div>
+<div class="cal-wrap" id="calWrap" style="display:none;">
+  <div class="cal-dow">
+    <div>Sun</div><div>Mon</div><div>Tue</div><div>Wed</div><div>Thu</div><div>Fri</div><div>Sat</div>
+  </div>
+  <div class="cal-grid" id="calGrid"></div>
+</div>
+<div class="share-note">Shared board — everyone who opens this site can add, edit, and check off posts. Changes save automatically and sync across everyone within a few seconds.</div>
+
+<!-- Day detail popover: lists posts for a day, lets you add/edit -->
+<div class="overlay" id="dayOverlay">
+  <div class="modal">
+    <h3 id="dayModalTitle">Day</h3>
+    <div class="day-sub" id="dayModalSub"></div>
+    <div class="day-post-list" id="dayPostList"></div>
+    <button class="day-add-btn" id="dayAddBtn">+ Add a post for this day</button>
+    <div class="modal-actions">
+      <div></div>
+      <button class="btn" id="dayCloseBtn">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- Post edit modal -->
+<div class="overlay" id="overlay">
+  <div class="modal">
+    <span class="back-link" id="backToDayBtn">&larr; Back to day</span>
+    <h3 id="modalTitle">New post</h3>
+    <div class="field">
+      <label for="f-title">Title / caption idea</label>
+      <textarea id="f-title" placeholder="e.g. Reel — freshers' orientation highlights"></textarea>
+      <div class="error-msg" id="err-title">Enter a title for the post.</div>
+    </div>
+    <div class="field-row">
+      <div class="field">
+        <label for="f-platform">Platform</label>
+        <select id="f-platform">
+          <option value="instagram">Instagram</option>
+          <option value="linkedin">LinkedIn</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="f-status">Status</label>
+        <select id="f-status">
+          <option value="idea">Idea</option>
+          <option value="draft">Draft</option>
+          <option value="scheduled">Scheduled</option>
+          <option value="posted">Posted</option>
+        </select>
+      </div>
+    </div>
+    <div class="field-row">
+      <div class="field">
+        <label for="f-date">Date</label>
+        <input type="date" id="f-date" />
+      </div>
+      <div class="field">
+        <label for="f-format">Format</label>
+        <select id="f-format">
+          <option>Reel</option>
+          <option>Carousel</option>
+          <option>Static post</option>
+          <option>Story</option>
+          <option>Article</option>
+          <option>Poll</option>
+        </select>
+      </div>
+    </div>
+    <div class="field">
+      <label for="f-owner">Owner (optional)</label>
+      <input type="text" id="f-owner" placeholder="Who's handling this post" />
+    </div>
+    <div class="field">
+      <label for="f-notes">Notes (optional)</label>
+      <textarea id="f-notes" placeholder="Assets needed, tagging, approvals..."></textarea>
+    </div>
+    <div class="modal-actions">
+      <button class="btn danger" id="deleteBtn" style="display:none;">Delete</button>
+      <div style="margin-left:auto; display:flex; gap:8px;">
+        <button class="btn" id="cancelBtn">Cancel</button>
+        <button class="btn primary" id="saveBtn">Save</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>
